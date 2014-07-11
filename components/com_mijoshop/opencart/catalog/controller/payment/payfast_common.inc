@@ -26,7 +26,7 @@
 define( 'PF_SOFTWARE_NAME', 'Opencart' );
 define( 'PF_SOFTWARE_VER', "1.5.4" );
 define( 'PF_MODULE_NAME', 'PayFast-Opencart' );
-define( 'PF_MODULE_VER', '1.1.1' );
+define( 'PF_MODULE_VER', '1.2.0' );
 
 // Features
 // - PHP
@@ -146,18 +146,24 @@ function pfGetData()
  * 
  * @author Jonathan Smit
  */
-function pfValidSignature( $pfData = null, &$pfParamString = null )
+function pfValidSignature( $pfData = null, &$pfParamString = null, $pfPassphrase=null )
 {
     // Dump the submitted variables and calculate security signature
     foreach( $pfData as $key => $val )
     {
-    	if( $key != 'signature' and $key != 'option' and $key != 'Itemid' and $key != 'mijoshop_store_id'){
+    	if( $key != 'signature' and $key != 'option' and $key != 'Itemid' and $key != 'mijoshop_store_id')
+        {
     		$pfParamString .= $key .'='. urlencode( $val ) .'&';
-            }
+        }
     }
-
-    // Remove the last '&' from the parameter string
-    $pfParamString = substr( $pfParamString, 0, -1 );
+    if( is_null( $pfPassphrase ) )
+    {
+        $pfParamString = substr( $pfParamString, 0, -1 );
+    }
+    else
+    {
+        $pfParamString = $pfParamString."passphrase=".$pfPassphrase;
+    }
     $signature = md5( $pfParamString );
     
     $result = ( $pfData['signature'] == $signature );
